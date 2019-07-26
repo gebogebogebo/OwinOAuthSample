@@ -1,0 +1,74 @@
+@startuml
+title Flow_AuthorizationCodeGrant_Simple
+hide footbox
+
+participant "**Resource Owner**\n**利用者**\n" as User
+participant "**User Agent**\n**ブラウザ**\n" as Agent
+participant "**Client**\n**クライアント**\nhttp://localhost:38500" as Client
+participant "**AuthZServer**\n**認可サーバ**\nhttp://localhost:11625" as AuthZServer
+participant "**ResourceServer**\n**リソースサーバ**\nhttp://localhost:38385" as ResourceServer
+
+User -> Agent:操作開始
+Agent -> Client:
+note over Client:クライアント画面
+Agent <-- Client:
+note over Agent:クライアント画面
+activate Agent
+
+User -> Agent:**1.アクセストークンを**\n**取得する**
+
+group A 認可コードの取得
+    group A-1 クライアント検証
+        Agent -> AuthZServer:クライアントID
+        Agent <-- AuthZServer
+    end group
+
+    group A-2 ユーザー検証
+        Agent -> AuthZServer:
+        note over AuthZServer:ログイン画面
+deactivate Agent
+        Agent <-- AuthZServer:
+activate Agent
+        note over Agent:ログイン画面
+        User --> Agent:ユーザーID・パスワード入力\n→**ログイン**
+
+        Agent -> AuthZServer:ユーザーID・パスワード入力
+        Agent <-- AuthZServer:
+    end group
+
+    group A-3 認可確認
+        Agent -> AuthZServer:
+        note over AuthZServer:認可確認画面
+deactivate Agent
+        Agent <-- AuthZServer:
+        note over Agent:認可確認画面
+activate Agent
+        User --> Agent:**承認してログインする**
+    end group
+
+    Agent -> AuthZServer:
+    Agent <-- AuthZServer:認可コード
+    note over Agent:**認可コード取得**
+end group
+
+Agent -> Client:
+deactivate Agent
+Agent <-- Client:
+note over Agent:クライアント画面
+activate Agent
+
+group B アクセストークンの取得
+    Agent -> AuthZServer:認可コード
+    Agent <-- AuthZServer:アクセストークン
+    note over Agent:**アクセストークン取得**
+end group
+
+User --> Agent:**2.リソースサーバーに**\n**アクセスする**
+
+group C リソース取得
+    Agent -> ResourceServer:アクセストークン
+    Agent <-- ResourceServer:リソース
+    note over Agent:**リソース取得**
+end group
+
+@enduml

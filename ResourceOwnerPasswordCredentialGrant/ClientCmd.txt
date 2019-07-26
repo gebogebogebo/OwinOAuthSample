@@ -1,0 +1,20 @@
+// Request Token
+curl -XPOST http://localhost:11625/OAuth/Token -H "Authorization:Basic MTIzNDU2OmFiY2RlZg==" -H "Content-Type: application/x-www-form-urlencoded" -d "grant_type=password&username=gebo&password=gebopass&scope=foo bar"
+
+// Get Resource
+curl http://localhost:38385/api/Test -H "Authorization:Bearer {Access Token}"
+
+
+curl http://localhost:38385/api/Test -H "Authorization:Bearer BtF6laBHusfNgsq9t10pvxthnVI3cZ891WfDwdarpILQoijqg6rXwJ7l2sgBqm2UCr84s-JnVPUX2IAuLryUxFb9pQyxmo5RDX6mvyJZgV2bQ2NTTMfDmFZC9RqjjWPX6iMjgDviYadGaNfs2ww1fsm6kBIpr9XCVz1ZHbnJeXWMVcvhtJmor8RfrM7YJAaMNDN9HyAlxdk8b4WI6dmBAyq-ujLCtCVMQ4_jZ0z_kEYvTjlk"
+
+
+// Refresh Token
+curl -XPOST http://localhost:11625/OAuth/Token -H "Authorization:Basic MTIzNDU2OmFiY2RlZg==" -H "Content-Type: application/x-www-form-urlencoded" -d "grant_type=refresh_token&refresh_token=Szn5L93lXF3hnStbrf1BdLtCTcGwQTZyhV6xMoWw9tjIEN4Ituvqz0ojRBfuWwRmm2xqJhLCBPHB68xo6GgQdV7YBVucoAnJ7gD3O4IYEuP96KrNbQ2-VsYIjlkgXrh5F11mllYdwa6BDOad0pm58GIfc6nZXhJgcoron8-C1ceRQxfKdThFFepfZDXx4CEiXs5muEP1nq7fDCGhYCLdFdn1PRhO7EzBxyib_hjCDekhpU27"
+
+// これはNG　Authorizationヘッダが必須
+curl -XPOST http://localhost:11625/OAuth/Token -H "Content-Type: application/x-www-form-urlencoded" -d "grant_type=refresh_token&refresh_token=Szn5L93lXF3hnStbrf1BdLtCTcGwQTZyhV6xMoWw9tjIEN4Ituvqz0ojRBfuWwRmm2xqJhLCBPHB68xo6GgQdV7YBVucoAnJ7gD3O4IYEuP96KrNbQ2-VsYIjlkgXrh5F11mllYdwa6BDOad0pm58GIfc6nZXhJgcoron8-C1ceRQxfKdThFFepfZDXx4CEiXs5muEP1nq7fDCGhYCLdFdn1PRhO7EzBxyib_hjCDekhpU27"
+
+// サンプル
+curl -XPOST http://localhost:11625/OAuth/Token -H "Authorization:Basic MTIzNDU2OmFiY2RlZg==" -H "Content-Type: application/x-www-form-urlencoded" -d "grant_type=refresh_token&refresh_token=Szn5L93lXF3hnStbrf1BdLtCTcGwQTZyhV6xMoWw9tjIEN4Ituvqz0ojRBfuWwRmm2xqJhLCBPHB68xo6GgQdV7YBVucoAnJ7gD3O4IYEuP96KrNbQ2-VsYIjlkgXrh5F11mllYdwa6BDOad0pm58GIfc6nZXhJgcoron8-C1ceRQxfKdThFFepfZDXx4CEiXs5muEP1nq7fDCGhYCLdFdn1PRhO7EzBxyib_hjCDekhpU27"
+{"access_token":"6XWkx8xjnqrop7VgEAeg7BpRjVo-yFPQ_u9WlQ_wLtUaPTXtsEp-1-CyG7OsKfWTzbB4VGBMxvjSDB723LiNAqETHQNYbvu4M89EqLhCiyIh4y_-8yWdpW5XJYI-5u2YoBWIFoCiPWn5XpbdxMPIZpfDUaqwSCaIER0yjjH7OuavCOz9_dvXk-GIZEnsuquDl_Gj9PCp_J9dcdKRrOwIqpXTlytUPG9mudJb1CdoMV6IbBzI","token_type":"bearer","expires_in":599,"refresh_token":"xnkQiKYpra2UMgP793hkZIl98CjF5y1ZI2p1-y0qXDVqpDJnRyfjr3vbV55o_4YKv_XHCaRORWrqrmNE6azkLgOFZM-buyRCyXhiRH99af21dwwyR8VXmPK9ct9fRyr3N0ieE0jtZ2ZQ1DfCj5NNMGGpOH3KsZIPtk06oZ4uNUz6BHeHuaraf2iODmytTYW0xOyDFJ6AyL8iPvElUCn57b8iCt-uN890sXzVqnp5dIeFK98h"}
+

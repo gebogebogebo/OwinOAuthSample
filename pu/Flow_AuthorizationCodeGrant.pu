@@ -1,0 +1,106 @@
+@startuml
+title Flow_AuthorizationCodeGrant
+hide footbox
+
+participant "**Resource Owner**\n**利用者**" as User
+
+participant "**User Agent**\n**ブラウザ**" as Agent
+
+box "**Client**\nhttp://localhost:38500"
+    participant "**クライアント画面**\n\nｸﾗｲｱﾝﾄId = 123456\nｸﾗｲｱﾝﾄｼｰｸﾚｯﾄ = abcdef" as Client
+end box
+
+box "**AuthZServer**\nhttp://localhost:11625"
+    participant "**認可ｴﾝﾄﾞﾎﾟｲﾝﾄ**\n**認可確認画面**\n\n/OAuth/Authorize" as AuthZCode
+    participant "**ログイン画面**\n\n\n/Account/Login" as AuthZLogin
+    participant "**ﾄｰｸﾝｴﾝﾄﾞﾎﾟｲﾝﾄ**\n\n\n/OAuth/Token" as AuthZToken
+end box
+
+box "**ResourceServer**\nhttp://localhost:38385"
+    participant "WebAPI\n\n\n/api/Test" as ResourceServer
+end box
+
+User -> Agent:操作開始
+Agent -> Client:
+Agent <-- Client:
+note over Agent:クライアント画面
+activate Agent
+
+User -> Agent:**1.アクセストークンを**\n**取得する**
+
+group 認可コードの取得
+    group クライアント認証
+        Agent -> AuthZCode:**GET**\n?client_id={クライアントID}\n&redirect_uri=http://localhost:38500/\n&state=kfOQdu-TKERMDG6vKTh1Nw\n&response_type=code
+        note over AuthZCode:クライアントIDの検証\n- Startup.ValidateClientRedirectUri()\n**- クライアントOK**
+        note over AuthZCode:OAuthController.Authorize()
+        Agent <-- AuthZCode:**Response 302 Found**\nリダイレクト
+    end group
+
+    group ユーザー検証
+        Agent -> AuthZLogin:リダイレクト **GET**
+deactivate Agent
+        Agent <-- AuthZLogin:**Response 200 OK**\nログイン画面
+activate Agent
+        note over Agent:ログイン画面
+        User --> Agent:ユーザーID・\nパスワードを入力\n→**ログイン**
+
+        Agent -> AuthZLogin:ログイン **POST**\nusername={ユーザーID}\n&password={パスワード}\n&submit.Signin=Sign+In
+        note over AuthZLogin:ユーザー検証\n- AccountController.Login()\n**- ユーザーOK**
+        Agent <-- AuthZLogin:**Response 302 Found**\nリダイレクト
+    end group
+
+    group 認可確認
+        Agent -> AuthZCode:リダイレクト **GET**\n?client_id=123456\n&redirect_uri=http://localhost:38500/\n&state=kfOQdu-TKERMDG6vKTh1Nw\n&response_type=code
+        note over AuthZCode:クライアントIDの検証\n- Startup.ValidateClientRedirectUri()
+        note over AuthZCode:OAuthController.Authorize()
+deactivate Agent
+        Agent <-- AuthZCode:**Response 200 OK**\n認可確認画面
+        note over Agent:認可確認画面
+activate Agent
+        User --> Agent:**承認してログインする**
+
+        Agent -> AuthZCode:**POST**\n?client_id=123456\n&redirect_uri=http://localhost:38500/\n&state=kfOQdu-TKERMDG6vKTh1Nw\n&response_type=code
+
+        note over AuthZCode:クライアントIDの検証\n- Startup.ValidateClientRedirectUri()
+        note over AuthZCode:OAuthController.Authorize()\nアクセストークンの生成
+        note over AuthZCode:認可コード生成\n- Startup.CreateAuthenticationCode()
+
+        Agent <-- AuthZCode:**Response 302 Found**\nリダイレクト\n**code=c312...6eab**\nstate=kfOQdu-TKERMDG6vKTh1Nw
+        note over Agent:**認可コード取得**
+    end group
+end group
+
+Agent -> Client:リダイレクト **GET**
+deactivate Agent
+Agent <-- Client:**Response 100 Continue**
+
+group アクセストークンの取得
+    Agent -> AuthZToken:**トークン取得 POST**\nAuthorization:Basic base64(クライアントID:クライアントシークレット)\ngrant_type=authorization_code\n&code={認可コード}
+    note over AuthZToken : ClientId,Secretの検証\n - ValidateClientAuthentication()
+    note over AuthZToken : アクセストークンの生成\n - ReceiveAuthenticationCode()
+    note over AuthZToken : リフレッシュトークンの生成\n - CreateRefreshToken()
+
+    Agent <-- AuthZToken:**Response 200 OK\nアクセストークン & リフレッシュトークン**
+    note over Agent:**アクセストークン取得**
+end group
+
+Agent <-- Client:**Response 200 OK**
+note over Agent:クライアント画面
+activate Agent
+User --> Agent:**2.リソースサーバーに**\n**アクセスする**
+
+group リソース取得
+
+    Agent -> ResourceServer: GET\n http://localhost:38385/api/Test\n Authorization:Bearer {アクセストークン}
+    
+    note over ResourceServer:アクセストークンの検証\n - TestController.Get()の[Authorize]属性\n - 検証処理はOWINが勝手にやる
+    note over ResourceServer:Responseの生成\n - TestController.Get()
+
+    Agent <-- ResourceServer: result {Identity.Name}
+    note over Agent:**リソース取得**
+end group
+
+Agent -> Client:クライアント画面更新\n {Identity.Name}表示
+Agent <-- Client:
+
+@enduml

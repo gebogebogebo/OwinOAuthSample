@@ -1,0 +1,26 @@
+﻿<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Authorization Code Grant Client</title>
+</head>
+<body style="background-color:azure">
+    <h1>Authorization Code Grant Client</h1>
+    <h2>Client Application</h2>
+    <form id="form1" action="@ViewBag.Action" method="POST">
+        <div>
+            Access Token<br />
+            <input id="AccessToken" name="AccessToken" style="width:1000px;" type="text" value="@ViewBag.AccessToken" />
+            <br />
+            <input id="Authorize" name="submit.Authorize" value="1.アクセストークンを取得する" type="submit" />
+            <br />
+            <br />
+            Access Resource Server<br />
+            <input id="CallApi" name="submit.CallApi" value="2.リソースサーバーにアクセスする" type="submit" />
+        </div>
+        <div>
+            @ViewBag.ApiResponse
+        </div>
+    </form>
+</body>
+</html>

@@ -1,0 +1,62 @@
+◆クライアント	http://localhost:38500/
+◆認証サーバー	http://localhost:11625/
+
+// 認可エンドポイントへのリクエスト
+curl -i "http://localhost:11625/OAuth/Authorize?client_id=123456&redirect_uri=http%3A%2F%2Flocalhost%3A38500%2F&state=kfOQdu-TKERMDG6vKTh1Nw&scope=bio%20notes&response_type=code"
+
+※わかりやすくすると(https://www.tagindex.com/tool/url.html)
+	client_id=123456
+		&
+	redirect_uri=http://localhost:38500/
+		&
+	state=kfOQdu-TKERMDG6vKTh1Nw
+		&
+	scope=bio notes
+		&
+	response_type=code
+
+
+// ex.Response
+HTTP/1.1 302 Found
+Cache-Control: private
+Location: http://localhost:11625/Account/Login?ReturnUrl=%2FOAuth%2FAuthorize%3Fclient_id%3D123456%26redirect_uri%3Dhttp%253A%252F%252Flocalhost%253A38500%252F%26state%3DkfOQdu-TKERMDG6vKTh1Nw%26scope%3Dbio%2520notes%26response_type%3Dcode
+Server: Microsoft-IIS/10.0
+X-AspNetMvc-Version: 5.1
+X-AspNet-Version: 4.0.30319
+X-SourceFiles: =?UTF-8?B?QzpcVXNlcnNcZ2Vib1xEb2N1bWVudHNcR2l0SHViXE15UHJpdmF0ZVNhbXBsZVxPQXV0aF9TYW1wbGVfTVNcT1dJTiBPQXV0aCAyLjAgQXV0aG9yaXphdGlvbiBTZXJ2ZXJcQyNcQXV0aG9yaXphdGlvblNlcnZlclxPQXV0aFxBdXRob3JpemU=?=
+X-Powered-By: ASP.NET
+Date: Sun, 14 Jul 2019 00:41:19 GMT
+Content-Length: 0
+
+// リダイレクト(Location)をわかりやすくすると
+http://localhost:11625/Account/Login
+		?
+	ReturnUrl=/OAuth/Authorize
+		?
+	client_id=123456
+		&
+	redirect_uri=http://localhost:38500/
+		&
+	state=kfOQdu-TKERMDG6vKTh1Nw
+		&
+	scope=bio notes
+		&
+	response_type=code
+
+// 認証OK
+
+// 認証コード生成
+private void CreateAuthenticationCode(AuthenticationTokenCreateContext context)
+{
+    // https://docs.microsoft.com/ja-jp/dotnet/api/system.guid.tostring?view=netframework-4.8
+    // 32桁のGUIDを二つつなげる
+    string tokenValue = Guid.NewGuid().ToString("n") + Guid.NewGuid().ToString("n");
+    context.SetToken(tokenValue);
+    _authenticationCodes[context.Token] = context.SerializeTicket();
+}
+
+// 認証サーバー→クライアント
+code=認証コード
+state=最初にクライアントから指定されたステート
+http://localhost:38500/?code=c3125795b61d4cf9b9d089c1bd4634180a6fb55a6e6849e98997fc0fe4766eab&state=kfOQdu-TKERMDG6vKTh1Nw
+
