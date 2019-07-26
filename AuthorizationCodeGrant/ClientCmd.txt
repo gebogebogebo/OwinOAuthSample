@@ -55,8 +55,4 @@ private void CreateAuthenticationCode(AuthenticationTokenCreateContext context)
     _authenticationCodes[context.Token] = context.SerializeTicket();
 }
 
-// 認証サーバー→クライアント
-code=認証コード
-state=最初にクライアントから指定されたステート
-http://localhost:38500/?code=c3125795b61d4cf9b9d089c1bd4634180a6fb55a6e6849e98997fc0fe4766eab&state=kfOQdu-TKERMDG6vKTh1Nw
 
